@@ -2,8 +2,8 @@
 import pandas as pd
 import requests
 from scipy.stats import poisson
-import matplotlib.pyplot as plt
-import seaborn as sns
+#import matplotlib.pyplot as plt
+#import seaborn as sns
 from flask import Flask, jsonify
 from scipy.stats import poisson
 
@@ -121,7 +121,7 @@ def calcular_pts_esperada(linha):
     linha["pontos_fora"] = v_esperado_fora
 
     return linha
-
+"""
 def gerar_heatMap(time_casa, time_fora):
 
     # Disitribuição de Poisson - Eventos independentes
@@ -149,7 +149,7 @@ def gerar_heatMap(time_casa, time_fora):
     heatMap = plt.gcf()
     
     return heatMap
-
+"""
 tabela_jogos_faltantes = jogos_faltantes.apply(calcular_pts_esperada, axis=1)
 tabela_classificação_atualizada = tabela_classificação2024[["Equipevde", "Pts"]]
 tabela_classificação_atualizada["Pts"] = tabela_classificação_atualizada["Pts"].astype(int)
@@ -168,10 +168,6 @@ tabela_classificação_atualizada["Pts"] = tabela_classificação_atualizada.app
 tabela_classificação_atualizada = tabela_classificação_atualizada.rename(columns={"Equipevde": "Time", "Pts": "Pontos"})
 tabela_classificação_atualizada = tabela_classificação_atualizada.sort_values(by="Pontos", ascending=False).reset_index(drop=True)
 tabela_classificação_atualizada.index = tabela_classificação_atualizada.index + 1
-
-#salvando a tabela em json em utf-8
-#tabela_classificação_atualizada.to_json("classificação.json", orient="records", force_ascii=False)
-#print(tabela_classificação_atualizada)
 
 app = Flask(__name__)
 @app.route('/classificacao', methods=['GET'])
