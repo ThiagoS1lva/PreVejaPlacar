@@ -6,8 +6,6 @@ from scipy.stats import poisson
 #import seaborn as sns
 from flask import Flask, jsonify
 from scipy.stats import poisson
-import time
-
 seriaA2024 = requests.get('https://pt.wikipedia.org/wiki/Campeonato_Brasileiro_de_Futebol_de_2024_-_S%C3%A9rie_A')
 
 # Informações do campeonato de 2024
@@ -171,9 +169,9 @@ tabela_classificação_atualizada = tabela_classificação_atualizada.sort_value
 tabela_classificação_atualizada.index = tabela_classificação_atualizada.index + 1
 
 app = Flask(__name__)
-@app.route('/classificacao', methods=['GET'])
+@app.route('/', methods=['GET'])
 def classificacao():
     return jsonify(tabela_classificação_atualizada.to_dict(orient="records"))
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host="0.0.0.0")
