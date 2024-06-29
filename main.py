@@ -6,6 +6,7 @@ from scipy.stats import poisson
 #import seaborn as sns
 from flask import Flask, jsonify
 from scipy.stats import poisson
+import time
 
 seriaA2024 = requests.get('https://pt.wikipedia.org/wiki/Campeonato_Brasileiro_de_Futebol_de_2024_-_S%C3%A9rie_A')
 
