@@ -171,6 +171,7 @@ tabela_classificação_atualizada = tabela_classificação_atualizada.sort_value
 tabela_classificação_atualizada.index = tabela_classificação_atualizada.index + 1
 
 app = Flask(__name__)
+
 plt.switch_backend('agg')
 CORS(app)
 @app.route('/', methods=['GET'])
