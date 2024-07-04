@@ -171,11 +171,6 @@ tabela_classificação_atualizada = tabela_classificação_atualizada.rename(col
 tabela_classificação_atualizada = tabela_classificação_atualizada.sort_values(by="Pontos", ascending=False).reset_index(drop=True)
 tabela_classificação_atualizada.index = tabela_classificação_atualizada.index + 1
 
-
-
-gerar_heatMap("Flamengo", "São Paulo")
-
-
 app = Flask(__name__)
 CORS(app)
 @app.route('/', methods=['GET'])
