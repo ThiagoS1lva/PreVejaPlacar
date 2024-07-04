@@ -2,10 +2,13 @@
 import pandas as pd
 import requests
 from scipy.stats import poisson
-#import matplotlib.pyplot as plt
-#import seaborn as sns
-from flask import Flask, jsonify
+import matplotlib.pyplot as plt
+import seaborn as sns
+from flask import Flask, jsonify, request, send_file
 from scipy.stats import poisson
+from flask_cors import CORS
+import io
+
 seriaA2024 = requests.get('https://pt.wikipedia.org/wiki/Campeonato_Brasileiro_de_Futebol_de_2024_-_S%C3%A9rie_A')
 
 # Informações do campeonato de 2024
@@ -101,7 +104,7 @@ def calcular_pts_esperada(linha):
     pv_casa = 0
     p_empate = 0
     pv_fora = 0
-    
+
     # Considerando fazer gols eventos independentes
     for gols_casa in range(0, 7):
         for gols_fora in range(0, 7):
@@ -112,7 +115,7 @@ def calcular_pts_esperada(linha):
                 pv_casa += prob_resultado
             else:
                 pv_fora += prob_resultado
-    
+
     v_esperado_casa = pv_casa * 3 + p_empate
     v_esperado_fora = pv_fora * 3 + p_empate
 
@@ -120,7 +123,7 @@ def calcular_pts_esperada(linha):
     linha["pontos_fora"] = v_esperado_fora
 
     return linha
-"""
+
 def gerar_heatMap(time_casa, time_fora):
 
     # Disitribuição de Poisson - Eventos independentes
@@ -146,9 +149,9 @@ def gerar_heatMap(time_casa, time_fora):
     plt.ylabel(f"Gols {time_casa}")
 
     heatMap = plt.gcf()
-    
+    plt.show()
     return heatMap
-"""
+
 tabela_jogos_faltantes = jogos_faltantes.apply(calcular_pts_esperada, axis=1)
 tabela_classificação_atualizada = tabela_classificação2024[["Equipevde", "Pts"]]
 tabela_classificação_atualizada["Pts"] = tabela_classificação_atualizada["Pts"].astype(int)
@@ -159,7 +162,7 @@ pts_fora = tabela_jogos_faltantes.groupby("Fora").sum()[["pontos_fora"]]
 def atualizar_pts (linha):
     time = linha["Equipevde"]
     pontuacao = int(linha["Pts"]) + float(pts_casa.loc[time, "pontos_casa"]) + float(pts_fora.loc[time, "pontos_fora"])
-    
+
     return pontuacao
 
 tabela_classificação_atualizada["Pts"] = tabela_classificação_atualizada.apply(atualizar_pts, axis=1)
@@ -168,10 +171,33 @@ tabela_classificação_atualizada = tabela_classificação_atualizada.rename(col
 tabela_classificação_atualizada = tabela_classificação_atualizada.sort_values(by="Pontos", ascending=False).reset_index(drop=True)
 tabela_classificação_atualizada.index = tabela_classificação_atualizada.index + 1
 
+
+
+gerar_heatMap("Flamengo", "São Paulo")
+
+
 app = Flask(__name__)
+CORS(app)
 @app.route('/', methods=['GET'])
 def classificacao():
     return jsonify(tabela_classificação_atualizada.to_dict(orient="records"))
 
+@app.route('/heatmap', methods=['POST'])
+def heatmap():
+    data = request.get_json()
+    time_casa = data["time_casa"]
+    time_fora = data["time_fora"]
+
+    if not time_casa or not time_fora:
+        return jsonify({"erro": "Os times não foram informados"}), 400
+    
+    heatMap = gerar_heatMap(time_casa, time_fora)
+    buf = io.BytesIO()
+    heatMap.savefig(buf, format='png')
+    buf.seek(0)
+
+    return send_file(buf, mimetype='image/png', attachment_filename='heatmap.png')
+
 if __name__ == '__main__':
     app.run(host="0.0.0.0")
+
