@@ -149,7 +149,6 @@ def gerar_heatMap(time_casa, time_fora):
     plt.ylabel(f"Gols {time_casa}")
 
     heatMap = plt.gcf()
-    plt.show()
     return heatMap
 
 tabela_jogos_faltantes = jogos_faltantes.apply(calcular_pts_esperada, axis=1)
@@ -172,6 +171,7 @@ tabela_classificação_atualizada = tabela_classificação_atualizada.sort_value
 tabela_classificação_atualizada.index = tabela_classificação_atualizada.index + 1
 
 app = Flask(__name__)
+plt.switch_backend('agg')
 CORS(app)
 @app.route('/', methods=['GET'])
 def classificacao():
@@ -191,7 +191,7 @@ def heatmap():
     heatMap.savefig(buf, format='png')
     buf.seek(0)
 
-    return send_file(buf, mimetype='image/png', attachment_filename='heatmap.png')
+    return send_file(buf, mimetype='image/png')
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0")
